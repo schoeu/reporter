@@ -63,9 +63,9 @@ func OpenDb(dbTyepe string, dbStr string) *sql.DB {
 
 func GetMonthDate(now time.Time) (time.Time, time.Time) {
 	currentYear, currentMonth, _ := now.Date()
-    currentLocation := now.Location()
+	currentLocation := now.Location()
 
-    firstOfMonth := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, currentLocation)
+	firstOfMonth := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, currentLocation)
 	lastOfMonth := firstOfMonth.AddDate(0, 1, -1)
 	return firstOfMonth, lastOfMonth
 }

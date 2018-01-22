@@ -1,41 +1,77 @@
 package handdlers
 
 import (
+	"../autils"
 	"database/sql"
 	"fmt"
-	"sync"
-	"../autils"
 )
 
-func SitePraise(db *sql.DB, date string) {
-	limit := "31"
-	topSites := []string{}
+type siteInfo struct {
+	domain string
+	pv     int
+}
+
+var (
+	limit = "31"
+)
+
+func TopSites(db *sql.DB, date string) {
+	topSites := []siteInfo{}
+	si := siteInfo{}
 	now := autils.ParseTimeStr(date)
 	_, last := autils.GetMonthDate(now)
-	sqlStr := "select domain, pv from site_detail where date = '"+last+"' order by pv desc offset 0 limit " + limit
+	_, lastMonthDate := autils.GetMonthDate(now.AddDate(0, -1, 0))
+	sqlStr := "select domain, pv from site_detail where date = '" + autils.GetCurrentDate(last) + "' order by pv desc offset 0 limit " + limit
 	rows, err := db.Query(sqlStr)
 	domain := ""
 	pv := 0
-	var totalNum int
 
 	for rows.Next() {
-		err := rows.Scan(&domain)
+		err := rows.Scan(&domain, &pv)
 		autils.ErrHadle(err)
-		topSites = append(topSites, domain)
+		si.domain = domain
+		si.pv = pv
+		topSites = append(topSites, si)
 	}
-	
+
 	err = rows.Err()
 	autils.ErrHadle(err)
 	defer rows.Close()
 
-	totalNum := topSites[0]
-	topSites = topSites[1:]
-
-	firstDateStr := autils.GetCurrentDate(first)
+	firstDateStr := autils.GetCurrentDate(lastMonthDate)
 	lastDateStr := autils.GetCurrentDate(last)
 
-	newSiteFlow := siteFlow(db, newSites, firstDateStr, lastDateStr)
-	total := getTotalFlow(db, firstDateStr, lastDateStr)
-	fmt.Println(firstDateStr, lastDateStr)
-	fmt.Println(newSiteFlow, total)
+	lastTopList := getLastTop(db, firstDateStr, lastDateStr)
+
+	diffList := []int{}
+	for i, v := range topSites {
+		if v.domain == lastTopList[i].domain {
+			diffList = append(diffList, v.pv-lastTopList[i].pv)
+		}
+	}
+
+	fmt.Println(diffList)
+}
+
+func getLastTop(db *sql.DB, lastMonth, monthTail string) []siteInfo {
+	sqlStr := "select domain, pv from site_detail where date = '" + lastMonth + "' and domain in (select domain from site_detail where date = '" + monthTail + "' order by pv desc offset 0 limit " + limit + ")"
+	fmt.Println(sqlStr)
+	rows, err := db.Query(sqlStr)
+	domain := ""
+	pv := 0
+	lastTopSites := []siteInfo{}
+	lastSi := siteInfo{}
+
+	for rows.Next() {
+		err := rows.Scan(&domain, &pv)
+		autils.ErrHadle(err)
+		lastSi.domain = domain
+		lastSi.pv = pv
+		lastTopSites = append(lastTopSites, lastSi)
+	}
+
+	err = rows.Err()
+	autils.ErrHadle(err)
+	defer rows.Close()
+	return lastTopSites
 }

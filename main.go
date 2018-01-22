@@ -4,8 +4,8 @@ import (
 	"./autils"
 	"./config"
 	"./handdlers"
-	"time"
 	"flag"
+	"time"
 )
 
 func main() {

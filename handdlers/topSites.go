@@ -4,20 +4,20 @@ import (
 	"../autils"
 	"database/sql"
 	"fmt"
+	"sort"
 )
-
-type siteInfo struct {
-	domain string
-	pv     int
-}
 
 var (
 	limit = "31"
 )
 
+type kv struct {
+	Key   string
+	Value int
+}
+
 func TopSites(db *sql.DB, date string) {
-	topSites := []siteInfo{}
-	si := siteInfo{}
+	topSites := map[string]int{}
 	now := autils.ParseTimeStr(date)
 	_, last := autils.GetMonthDate(now)
 	_, lastMonthDate := autils.GetMonthDate(now.AddDate(0, -1, 0))
@@ -29,9 +29,7 @@ func TopSites(db *sql.DB, date string) {
 	for rows.Next() {
 		err := rows.Scan(&domain, &pv)
 		autils.ErrHadle(err)
-		si.domain = domain
-		si.pv = pv
-		topSites = append(topSites, si)
+		topSites[domain] = pv
 	}
 
 	err = rows.Err()
@@ -43,31 +41,33 @@ func TopSites(db *sql.DB, date string) {
 
 	lastTopList := getLastTop(db, firstDateStr, lastDateStr)
 
-	diffList := []int{}
+	diffList := map[string]int{}
 	for i, v := range topSites {
-		if v.domain == lastTopList[i].domain {
-			diffList = append(diffList, v.pv-lastTopList[i].pv)
-		}
+		diffList[i] = v - lastTopList[i]
 	}
 
-	fmt.Println(diffList)
+	var tmpKV []kv
+	for k, v := range diffList {
+		tmpKV = append(tmpKV, kv{k, v})
+	}
+
+	sort.Slice(tmpKV, func(i, j int) bool {
+		return tmpKV[i].Value > tmpKV[j].Value
+	})
+	fmt.Println(tmpKV)
 }
 
-func getLastTop(db *sql.DB, lastMonth, monthTail string) []siteInfo {
+func getLastTop(db *sql.DB, lastMonth, monthTail string) map[string]int {
 	sqlStr := "select domain, pv from site_detail where date = '" + lastMonth + "' and domain in (select domain from site_detail where date = '" + monthTail + "' order by pv desc offset 0 limit " + limit + ")"
 	fmt.Println(sqlStr)
 	rows, err := db.Query(sqlStr)
 	domain := ""
 	pv := 0
-	lastTopSites := []siteInfo{}
-	lastSi := siteInfo{}
-
+	lastTopSites := map[string]int{}
 	for rows.Next() {
 		err := rows.Scan(&domain, &pv)
 		autils.ErrHadle(err)
-		lastSi.domain = domain
-		lastSi.pv = pv
-		lastTopSites = append(lastTopSites, lastSi)
+		lastTopSites[domain] = pv
 	}
 
 	err = rows.Err()

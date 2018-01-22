@@ -12,7 +12,6 @@ func SitePraise(db *sql.DB, date string) {
 	now := autils.ParseTimeStr(date)
 	first, last := autils.GetMonthDate(now)
 	_, lastMonthDate := autils.GetMonthDate(now.AddDate(0,-1,0))
-	fmt.Println(lastMonthDate, last)
 	sqlStr := "select domain from site_detail where date = '"+ autils.GetCurrentDate(last) +"' except  select domain from site_detail where date = '"+ autils.GetCurrentDate(lastMonthDate) +"'"
 	rows, err := db.Query(sqlStr)
 	domain := ""
@@ -30,7 +29,7 @@ func SitePraise(db *sql.DB, date string) {
 
 	newSiteFlow := siteFlow(db, newSites, firstDateStr, lastDateStr)
 	total := getTotalFlow(db, firstDateStr, lastDateStr)
-
+	fmt.Println(firstDateStr, lastDateStr)
 	fmt.Println(newSiteFlow, total)
 }
 

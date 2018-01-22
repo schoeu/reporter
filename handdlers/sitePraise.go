@@ -30,7 +30,7 @@ func SitePraise(db *sql.DB, date string) {
 }
 
 func siteFlow(db *sql.DB, sites []string, first time.Time, last time.Time) {
-	count := []int{}
+	var count int
 	firstDateStr := autils.GetCurrentDate(first)
 	lastDateStr := autils.GetCurrentDate(last)
 	var mutex sync.Mutex
@@ -43,7 +43,9 @@ func siteFlow(db *sql.DB, sites []string, first time.Time, last time.Time) {
 		for rows.Next() {
 			err := rows.Scan(&pv)
 			autils.ErrHadle(err)
-			count = append(count, pv)
+			if pv != 0 {
+				count = count + pv
+			}
 		}
 		err = rows.Err()
 		autils.ErrHadle(err)

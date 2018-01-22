@@ -1,10 +1,10 @@
 package handdlers
 
 import (
-	"strings"
 	"time"
 	"database/sql"
 	"fmt"
+	"sync"
 	"../autils"
 )
 
@@ -33,20 +33,23 @@ func siteFlow(db *sql.DB, sites []string, first time.Time, last time.Time) {
 	count := []int{}
 	firstDateStr := autils.GetCurrentDate(first)
 	lastDateStr := autils.GetCurrentDate(last)
-	strArr := []string{}
+	var mutex sync.Mutex
+
 	for _, v := range sites {
-		sqlStr := "select avg(pv) from site_detail where domain = '"+v+"' and date >= '"+ firstDateStr +"' and date <= '"+ lastDateStr +"'"
-		strArr = append(strArr, sqlStr)
-	}
-	rows, err := db.Query(strings.Join(strArr, " union all  "))
-	var pv int
-	for rows.Next() {
-		err := rows.Scan(&pv)
+		mutex.Lock()
+		sqlStr := "select ceil(avg(pv)) from site_detail where domain = '"+v+"' and date >= '"+ firstDateStr +"' and date <= '"+ lastDateStr +"'"
+		rows, err := db.Query(sqlStr)
+		var pv int
+		for rows.Next() {
+			err := rows.Scan(&pv)
+			autils.ErrHadle(err)
+			count = append(count, pv)
+		}
+		err = rows.Err()
 		autils.ErrHadle(err)
-		count = append(count, pv)
+		defer rows.Close()
+		fmt.Println(count)
+		mutex.Unlock()
+
 	}
-	err = rows.Err()
-	autils.ErrHadle(err)
-	defer rows.Close()
-	fmt.Println(count)
 }

@@ -4,7 +4,7 @@ import (
 	"../autils"
 	"database/sql"
 	"fmt"
-	"sort"
+	//"sort"
 )
 
 var (
@@ -46,20 +46,24 @@ func TopSites(db *sql.DB, date string) {
 		diffList[i] = v - lastTopList[i]
 	}
 
-	var tmpKV []kv
+	topSum := 0
 	for k, v := range diffList {
-		tmpKV = append(tmpKV, kv{k, v})
+		topSum += v
 	}
 
-	sort.Slice(tmpKV, func(i, j int) bool {
-		return tmpKV[i].Value > tmpKV[j].Value
-	})
-	fmt.Println(tmpKV)
+	// var tmpKV []kv
+	// for k, v := range diffList {
+	// 	tmpKV = append(tmpKV, kv{k, v})
+	// }
+
+	// sort.Slice(tmpKV, func(i, j int) bool {
+	// 	return tmpKV[i].Value >= tmpKV[j].Value
+	// })
+	fmt.Println(topSum)
 }
 
 func getLastTop(db *sql.DB, lastMonth, monthTail string) map[string]int {
 	sqlStr := "select domain, pv from site_detail where date = '" + lastMonth + "' and domain in (select domain from site_detail where date = '" + monthTail + "' order by pv desc offset 0 limit " + limit + ")"
-	fmt.Println(sqlStr)
 	rows, err := db.Query(sqlStr)
 	domain := ""
 	pv := 0

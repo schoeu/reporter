@@ -4,7 +4,7 @@ import (
 	"../autils"
 	"database/sql"
 	"fmt"
-	//"sort"
+	"sort"
 )
 
 var (
@@ -42,23 +42,26 @@ func TopSites(db *sql.DB, date string) {
 	lastTopList := getLastTop(db, firstDateStr, lastDateStr)
 
 	diffList := map[string]int{}
+
 	for i, v := range topSites {
 		diffList[i] = v - lastTopList[i]
 	}
 
-	topSum := 0
+	var tmpKV []kv
 	for k, v := range diffList {
-		topSum += v
+		tmpKV = append(tmpKV, kv{k, v})
 	}
 
-	// var tmpKV []kv
-	// for k, v := range diffList {
-	// 	tmpKV = append(tmpKV, kv{k, v})
-	// }
+	sort.Slice(tmpKV, func(i, j int) bool {
+		return tmpKV[i].Value >= tmpKV[j].Value
+	})
+	tmpKV = tmpKV[1:]
 
-	// sort.Slice(tmpKV, func(i, j int) bool {
-	// 	return tmpKV[i].Value >= tmpKV[j].Value
-	// })
+	topSum := 0
+	for _, v := range tmpKV {
+		topSum += v.Value
+	}
+
 	fmt.Println(topSum)
 }
 

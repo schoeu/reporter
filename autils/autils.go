@@ -61,8 +61,7 @@ func OpenDb(dbTyepe string, dbStr string) *sql.DB {
 	return db
 }
 
-func GetMonthDate(date string) (time.Time, time.Time) {
-	now := ParseTimeStr(date)
+func GetMonthDate(now time.Time) (time.Time, time.Time) {
 	currentYear, currentMonth, _ := now.Date()
     currentLocation := now.Location()
 

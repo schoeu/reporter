@@ -9,8 +9,11 @@ import (
 
 func SitePraise(db *sql.DB, date string) {
 	newSites := []string{}
-	first, last := autils.GetMonthDate(date)
-	sqlStr := "select domain from site_detail where date = '"+ autils.GetCurrentDate(last) +"' except  select domain from site_detail where date = '"+ autils.GetCurrentDate(first) +"'"
+	now := autils.ParseTimeStr(date)
+	_, last := autils.GetMonthDate(now)
+	_, lastMonthDate := autils.GetMonthDate(now.AddDate(0,-1,0))
+	fmt.Println(lastMonthDate, last)
+	sqlStr := "select domain from site_detail where date = '"+ autils.GetCurrentDate(last) +"' except  select domain from site_detail where date = '"+ autils.GetCurrentDate(lastMonthDate) +"'"
 	rows, err := db.Query(sqlStr)
 	domain := ""
 	for rows.Next() {
@@ -21,7 +24,8 @@ func SitePraise(db *sql.DB, date string) {
 	err = rows.Err()
 	autils.ErrHadle(err)
 	defer rows.Close()
-	siteFlow(db, newSites, first, last)
+	fmt.Println(len(newSites))
+	siteFlow(db, newSites, lastMonthDate, last)
 }
 
 func siteFlow(db *sql.DB, sites []string, first time.Time, last time.Time) {
@@ -39,4 +43,5 @@ func siteFlow(db *sql.DB, sites []string, first time.Time, last time.Time) {
 		autils.ErrHadle(err)
 		defer rows.Close()
 	}
+	fmt.Println(count)
 }

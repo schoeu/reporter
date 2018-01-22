@@ -17,8 +17,8 @@ func main() {
 		date = autils.GetCurrentDate(time.Now())
 	}
 
-	//db := autils.OpenDb("postgres", config.PQFlowUrl)
-	db := autils.OpenDb("postgres", config.PQTestUrl)
+	db := autils.OpenDb("postgres", config.PQFlowUrl)
+	//db := autils.OpenDb("postgres", config.PQTestUrl)
 	defer db.Close()
 	// 增长计算
 	handdlers.SitePraise(db, date)

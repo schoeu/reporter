@@ -5,7 +5,15 @@ import (
 	"database/sql"
 )
 
-func GetOverview(db *sql.DB, date string) []int {
+type orResult struct {
+	allFlow     int
+	domainCount int
+	diff        int
+	rate        float32
+	circleRate  float32
+}
+
+func GetOverview(db *sql.DB, date string) orResult {
 
 	now := autils.ParseTimeStr(date)
 	_, last := autils.GetMonthDate(now)
@@ -15,15 +23,22 @@ func GetOverview(db *sql.DB, date string) []int {
 	lastDateStr := autils.GetCurrentDate(last)
 	lastMDateStr := autils.GetCurrentDate(lastMonthDate)
 	tMonthStr := autils.GetCurrentDate(tMonthTime)
-	
-	
+
 	allFlow := getAllFlow(db, lastDateStr)
 	dCount := getDCount(db, lastDateStr)
 	diff, rate := getRaiseNum(db, lastDateStr, lastMDateStr)
 
 	// 环比
 	_, cRate := getRaiseNum(db, lastMDateStr, tMonthStr)
-	return []int{allFlow, dCount, diff, rate, cRate}
+
+	rs := orResult{}
+	rs.allFlow = allFlow
+	rs.domainCount = dCount
+	rs.domainCount = diff
+	rs.rate = rate
+	rs.circleRate = cRate
+
+	return rs
 }
 
 // 当前流量
@@ -61,8 +76,8 @@ func getDCount(db *sql.DB, day string) int {
 }
 
 // 增长流量
-func getRaiseNum(db *sql.DB, lastDate, newDadte string) (int, int) {
-	rows, err := db.Query("select click from all_flow where date = '"+lastDate+"' or date = '"+newDadte+"' order by ana_date desc")
+func getRaiseNum(db *sql.DB, lastDate, newDadte string) (int, float32) {
+	rows, err := db.Query("select click from all_flow where date = '" + lastDate + "' or date = '" + newDadte + "' order by ana_date desc")
 	autils.ErrHadle(err)
 
 	var nums []int
@@ -77,10 +92,10 @@ func getRaiseNum(db *sql.DB, lastDate, newDadte string) (int, int) {
 
 	if len(nums) > 1 {
 		diff := nums[0] - nums[1]
-		rate := diff / nums[1]
+		rate := float32(diff) / float32(nums[1]) * 100
 		return diff, rate
 	}
 
 	defer rows.Close()
-	return 0, 0
+	return 0, 0.0
 }

@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
-	"flag"
-	"time"
-	"path/filepath"
 	"./autils"
 	"./config"
 	"./handdlers"
+	"flag"
+	"fmt"
+	"path/filepath"
+	"time"
 )
 
 func main() {
@@ -40,17 +40,16 @@ func main() {
 		// handdlers.MarkdownMaker(rsFile)
 		return
 	}
-	
 
 	if aType == 0 {
 		// 概览
 		dataList := handdlers.GetOverview(db, date)
-		fmt.Println(dataList)
+		fmt.Println(dataList, dataList.Diff)
 
 	} else if aType == 1 {
-		// 增长计算
-		newSite, totle := handdlers.SitePraise(db, date)
-		fmt.Println(newSite, totle)
+		// 新增站点
+		newSiteInfo := handdlers.SitePraise(db, date)
+		fmt.Println(newSiteInfo, newSiteInfo.Newer)
 	} else if aType == 2 {
 		// TOP站点计算
 		raiseNum := handdlers.TopSites(db, date)

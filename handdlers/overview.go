@@ -6,11 +6,11 @@ import (
 )
 
 type orResult struct {
-	allFlow     int
-	domainCount int
-	diff        int
-	rate        float32
-	circleRate  float32
+	AllFlow     int
+	DomainCount int
+	Diff        int
+	Rate        float32
+	CircleRate  float32
 }
 
 func GetOverview(db *sql.DB, date string) orResult {
@@ -32,11 +32,11 @@ func GetOverview(db *sql.DB, date string) orResult {
 	_, cRate := getRaiseNum(db, lastMDateStr, tMonthStr)
 
 	rs := orResult{}
-	rs.allFlow = allFlow
-	rs.domainCount = dCount
-	rs.domainCount = diff
-	rs.rate = rate
-	rs.circleRate = cRate
+	rs.AllFlow = allFlow
+	rs.DomainCount = dCount
+	rs.Diff = diff
+	rs.Rate = rate
+	rs.CircleRate = cRate
 
 	return rs
 }

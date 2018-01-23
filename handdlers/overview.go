@@ -10,14 +10,20 @@ func GetOverview(db *sql.DB, date string) []int {
 	now := autils.ParseTimeStr(date)
 	_, last := autils.GetMonthDate(now)
 	_, lastMonthDate := autils.GetMonthDate(now.AddDate(0, -1, 0))
+	_, tMonthTime := autils.GetMonthDate(now.AddDate(0, -2, 0))
 
 	lastDateStr := autils.GetCurrentDate(last)
 	lastMDateStr := autils.GetCurrentDate(lastMonthDate)
+	tMonthStr := autils.GetCurrentDate(tMonthTime)
+	
 	
 	allFlow := getAllFlow(db, lastDateStr)
 	dCount := getDCount(db, lastDateStr)
-	diff, rate := getRaiseNum(db, lastMDateStr, lastMDateStr)
-	return []int{allFlow, dCount, diff, rate}
+	diff, rate := getRaiseNum(db, lastDateStr, lastMDateStr)
+
+	// 环比
+	_, cRate := getRaiseNum(db, lastMDateStr, tMonthStr)
+	return []int{allFlow, dCount, diff, rate, cRate}
 }
 
 // 当前流量

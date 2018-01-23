@@ -40,8 +40,14 @@ func main() {
 		// handdlers.MarkdownMaker(rsFile)
 		return
 	}
+	
 
 	if aType == 1 {
+		// 概览
+		dataList := handdlers.GetOverview(db, date)
+		fmt.Println(dataList)
+
+	} else if aType == 1 {
 		// 增长计算
 		newSite, totle := handdlers.SitePraise(db, date)
 		fmt.Println(newSite, totle)

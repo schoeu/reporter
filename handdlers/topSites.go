@@ -3,6 +3,7 @@ package handdlers
 import (
 	"../autils"
 	"database/sql"
+	"sort"
 )
 
 var (
@@ -45,25 +46,27 @@ func TopSites(db *sql.DB, date string) int {
 		diffList[i] = v - lastTopList[i]
 	}
 
-	topSum := 0
-	for _, v := range diffList {
-		topSum += v
-	}
-
-	// sort.Slice(tmpKV, func(i, j int) bool {
-	// 	return tmpKV[i].Value >= tmpKV[j].Value
-	// })
-	// tmpKV = tmpKV[1:]
-
 	// topSum := 0
-	// for _, v := range tmpKV {
-	// 	topSum += v.Value
+	// for _, v := range diffList {
+	// 	topSum += v
 	// }
 
-	// sort.Slice(tmpKV, func(i, j int) bool {
-	// 	return tmpKV[i].Value >= tmpKV[j].Value
-	// })
-	// return tmpKV
+	var tmpKV []kv
+	for k, v := range diffList {
+		tmpKV = append(tmpKV, kv{k, v})
+	}
+
+	sort.Slice(tmpKV, func(i, j int) bool {
+		return tmpKV[i].Value >= tmpKV[j].Value
+	})
+
+	tmpKV = tmpKV[1:]
+
+	topSum := 0
+	for _, v := range tmpKV {
+		topSum += v.Value
+	}
+
 	return topSum
 }
 

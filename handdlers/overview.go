@@ -62,7 +62,7 @@ func getDCount(db *sql.DB, day string) int {
 
 // 增长流量
 func getRaiseNum(db *sql.DB, lastDate, newDadte string) (int, int) {
-	rows, err := db.Query("select * from all_flow where date = '"+lastDate+"' or date = '"+newDadte+"' order by ana_date desc")
+	rows, err := db.Query("select click from all_flow where date = '"+lastDate+"' or date = '"+newDadte+"' order by ana_date desc")
 	autils.ErrHadle(err)
 
 	var nums []int

@@ -42,7 +42,7 @@ func main() {
 	}
 	
 
-	if aType == 1 {
+	if aType == 0 {
 		// 概览
 		dataList := handdlers.GetOverview(db, date)
 		fmt.Println(dataList)
@@ -55,9 +55,9 @@ func main() {
 		// TOP站点计算
 		raiseNum := handdlers.TopSites(db, date)
 		fmt.Println(raiseNum)
+	} else if aType == 2 {
+		handdlers.MarkdownMaker(rsFile)
 	}
-	
-	handdlers.MarkdownMaker(rsFile)
 
 	defer db.Close()
 }

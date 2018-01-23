@@ -17,7 +17,7 @@ func SitePraise(db *sql.DB, date string) nSiteInfo {
 	newSites := []string{}
 	now := autils.ParseTimeStr(date)
 	first, last := autils.GetMonthDate(now)
-	_, lastMonthDate := autils.GetMonthDate(now.AddDate(0, -1, 0))
+	lastMonthStart, lastMonthDate := autils.GetMonthDate(now.AddDate(0, -1, 0))
 	sqlStr := "select domain from site_detail where date = '" + autils.GetCurrentDate(last) + "' except  select domain from site_detail where date = '" + autils.GetCurrentDate(lastMonthDate) + "'"
 	rows, err := db.Query(sqlStr)
 	domain := ""
@@ -33,20 +33,21 @@ func SitePraise(db *sql.DB, date string) nSiteInfo {
 	firstDateStr := autils.GetCurrentDate(first)
 	lastDateStr := autils.GetCurrentDate(last)
 	tMDateStr := autils.GetCurrentDate(lastMonthDate)
+	sMDateStr := autils.GetCurrentDate(lastMonthStart)
 
 	newSiteFlow := siteFlow(db, newSites, firstDateStr, lastDateStr)
 	total := getTotalFlow(db, firstDateStr, lastDateStr)
 
-	fmt.Println(firstDateStr, lastDateStr, tMDateStr, firstDateStr)
+	fmt.Println(firstDateStr, lastDateStr, sMDateStr, tMDateStr)
 
 	// 环比
-	cNewSiteFlow := siteFlow(db, newSites, tMDateStr, firstDateStr)
-	cTotal := getTotalFlow(db, tMDateStr, firstDateStr)
+	cNewSiteFlow := siteFlow(db, newSites, sMDateStr, tMDateStr)
+	cTotal := getTotalFlow(db, sMDateStr, tMDateStr)
 
 	nsi := nSiteInfo{}
 	nsi.Newer = len(newSites)
-	nsi.NewFlow = float32(newSiteFlow) / float32(total)
-	nsi.CnFlow = float32(cNewSiteFlow) / float32(cTotal)
+	nsi.NewFlow = float32(newSiteFlow) / float32(total) * 100
+	nsi.CnFlow = float32(cNewSiteFlow) / float32(cTotal) * 100
 	return nsi
 }
 

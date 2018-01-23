@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-func SitePraise(db *sql.DB, date string) {
+func SitePraise(db *sql.DB, date string) (int, int) {
 	newSites := []string{}
 	now := autils.ParseTimeStr(date)
 	first, last := autils.GetMonthDate(now)
@@ -31,6 +31,7 @@ func SitePraise(db *sql.DB, date string) {
 	total := getTotalFlow(db, firstDateStr, lastDateStr)
 	fmt.Println(firstDateStr, lastDateStr)
 	fmt.Println(newSiteFlow, total)
+	return newSiteFlow, total
 }
 
 func siteFlow(db *sql.DB, sites []string, first, last string) int {

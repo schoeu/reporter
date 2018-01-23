@@ -3,8 +3,6 @@ package handdlers
 import (
 	"../autils"
 	"database/sql"
-	"fmt"
-	//"sort"
 )
 
 var (
@@ -16,7 +14,7 @@ type kv struct {
 	Value int
 }
 
-func TopSites(db *sql.DB, date string) {
+func TopSites(db *sql.DB, date string) int {
 	topSites := map[string]int{}
 	now := autils.ParseTimeStr(date)
 	_, last := autils.GetMonthDate(now)
@@ -47,7 +45,7 @@ func TopSites(db *sql.DB, date string) {
 	}
 
 	topSum := 0
-	for k, v := range diffList {
+	for _, v := range diffList {
 		topSum += v
 	}
 
@@ -59,7 +57,8 @@ func TopSites(db *sql.DB, date string) {
 	// sort.Slice(tmpKV, func(i, j int) bool {
 	// 	return tmpKV[i].Value >= tmpKV[j].Value
 	// })
-	fmt.Println(topSum)
+	// return tmpKV
+	return topSum
 }
 
 func getLastTop(db *sql.DB, lastMonth, monthTail string) map[string]int {

@@ -19,7 +19,6 @@ func SitePraise(db *sql.DB, date string) nSiteInfo {
 	first, last := autils.GetMonthDate(now)
 	_, lastMonthDate := autils.GetMonthDate(now.AddDate(0, -1, 0))
 	sqlStr := "select domain from site_detail where date = '" + autils.GetCurrentDate(last) + "' except  select domain from site_detail where date = '" + autils.GetCurrentDate(lastMonthDate) + "'"
-	fmt.Println(sqlStr)
 	rows, err := db.Query(sqlStr)
 	domain := ""
 	for rows.Next() {
@@ -38,6 +37,8 @@ func SitePraise(db *sql.DB, date string) nSiteInfo {
 	newSiteFlow := siteFlow(db, newSites, firstDateStr, lastDateStr)
 	total := getTotalFlow(db, firstDateStr, lastDateStr)
 
+	fmt.Println(firstDateStr, lastDateStr, tMDateStr, firstDateStr)
+
 	// 环比
 	cNewSiteFlow := siteFlow(db, newSites, tMDateStr, firstDateStr)
 	cTotal := getTotalFlow(db, tMDateStr, firstDateStr)
@@ -52,17 +53,17 @@ func SitePraise(db *sql.DB, date string) nSiteInfo {
 func siteFlow(db *sql.DB, sites []string, first, last string) int {
 	var count int
 	var mutex sync.Mutex
+	var pv sql.NullInt64
 	for _, v := range sites {
 		mutex.Lock()
 		sqlStr := "select ceil(avg(pv)) from site_detail where domain = '" + v + "' and date >= '" + first + "' and date <= '" + last + "'"
-		fmt.Println(sqlStr)
 		rows, err := db.Query(sqlStr)
-		var pv int
 		for rows.Next() {
 			err := rows.Scan(&pv)
 			autils.ErrHadle(err)
-			if pv != 0 {
-				count = count + pv
+			realPv := int(pv.Int64)
+			if realPv != 0 {
+				count = count + realPv
 			}
 		}
 		err = rows.Err()
@@ -75,9 +76,8 @@ func siteFlow(db *sql.DB, sites []string, first, last string) int {
 
 func getTotalFlow(db *sql.DB, first, last string) int {
 	sqlStr := "select ceil(avg(pv)) from site_detail where domain = '总和' and date >= '" + first + "' and date <= '" + last + "'"
-	fmt.Println(sqlStr)
 	rows, err := db.Query(sqlStr)
-	var total int
+	var total sql.NullInt64
 	for rows.Next() {
 		err := rows.Scan(&total)
 		autils.ErrHadle(err)
@@ -85,5 +85,5 @@ func getTotalFlow(db *sql.DB, first, last string) int {
 	err = rows.Err()
 	autils.ErrHadle(err)
 	defer rows.Close()
-	return total
+	return int(total.Int64)
 }

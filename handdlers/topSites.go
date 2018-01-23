@@ -3,6 +3,11 @@ package handdlers
 import (
 	"../autils"
 	"database/sql"
+<<<<<<< HEAD
+=======
+	"fmt"
+	"sort"
+>>>>>>> 36daf9260d0a72a7220ff43a5ba2529656a16f96
 )
 
 var (
@@ -40,25 +45,41 @@ func TopSites(db *sql.DB, date string) int {
 	lastTopList := getLastTop(db, firstDateStr, lastDateStr)
 
 	diffList := map[string]int{}
+
 	for i, v := range topSites {
 		diffList[i] = v - lastTopList[i]
 	}
 
+<<<<<<< HEAD
 	topSum := 0
 	for _, v := range diffList {
 		topSum += v
+=======
+	var tmpKV []kv
+	for k, v := range diffList {
+		tmpKV = append(tmpKV, kv{k, v})
+>>>>>>> 36daf9260d0a72a7220ff43a5ba2529656a16f96
 	}
 
-	// var tmpKV []kv
-	// for k, v := range diffList {
-	// 	tmpKV = append(tmpKV, kv{k, v})
-	// }
+	sort.Slice(tmpKV, func(i, j int) bool {
+		return tmpKV[i].Value >= tmpKV[j].Value
+	})
+	tmpKV = tmpKV[1:]
 
+	topSum := 0
+	for _, v := range tmpKV {
+		topSum += v.Value
+	}
+
+<<<<<<< HEAD
 	// sort.Slice(tmpKV, func(i, j int) bool {
 	// 	return tmpKV[i].Value >= tmpKV[j].Value
 	// })
 	// return tmpKV
 	return topSum
+=======
+	fmt.Println(topSum)
+>>>>>>> 36daf9260d0a72a7220ff43a5ba2529656a16f96
 }
 
 func getLastTop(db *sql.DB, lastMonth, monthTail string) map[string]int {

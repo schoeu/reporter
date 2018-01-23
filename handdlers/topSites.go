@@ -50,15 +50,15 @@ func TopSites(db *sql.DB, date string) int {
 		topSum += v
 	}
 
-	sort.Slice(tmpKV, func(i, j int) bool {
-		return tmpKV[i].Value >= tmpKV[j].Value
-	})
-	tmpKV = tmpKV[1:]
+	// sort.Slice(tmpKV, func(i, j int) bool {
+	// 	return tmpKV[i].Value >= tmpKV[j].Value
+	// })
+	// tmpKV = tmpKV[1:]
 
-	topSum := 0
-	for _, v := range tmpKV {
-		topSum += v.Value
-	}
+	// topSum := 0
+	// for _, v := range tmpKV {
+	// 	topSum += v.Value
+	// }
 
 	// sort.Slice(tmpKV, func(i, j int) bool {
 	// 	return tmpKV[i].Value >= tmpKV[j].Value

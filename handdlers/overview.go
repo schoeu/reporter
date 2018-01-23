@@ -5,18 +5,23 @@ import (
 	"database/sql"
 )
 
-func GetOverview(db *sql.DB, date string) (int, int) {
-	allFlowCh := make(chan int)
-	dCountCh := make(chan int)
-	go getAllFlow(db, allFlowCh, date)
-	go getDCount(db, dCountCh, date)
-	allFlow := <-allFlowCh
-	dCount := <-dCountCh
-	return allFlow, dCount
+func GetOverview(db *sql.DB, date string) []int {
+
+	now := autils.ParseTimeStr(date)
+	_, last := autils.GetMonthDate(now)
+	_, lastMonthDate := autils.GetMonthDate(now.AddDate(0, -1, 0))
+
+	lastDateStr := autils.GetCurrentDate(last)
+	lastMDateStr := autils.GetCurrentDate(lastMonthDate)
+	
+	allFlow := getAllFlow(db, lastDateStr)
+	dCount := getDCount(db, lastDateStr)
+	diff, rate := getRaiseNum(db, lastMDateStr, lastMDateStr)
+	return []int{allFlow, dCount, diff, rate}
 }
 
 // 当前流量
-func getAllFlow(db *sql.DB, ch chan int, day string) {
+func getAllFlow(db *sql.DB, day string) int {
 	rows, err := db.Query("select click from all_flow where date = '" + day + "'")
 	autils.ErrHadle(err)
 
@@ -29,12 +34,11 @@ func getAllFlow(db *sql.DB, ch chan int, day string) {
 	autils.ErrHadle(err)
 
 	defer rows.Close()
-
-	ch <- total
+	return total
 }
 
 // 域名总数
-func getDCount(db *sql.DB, ch chan int, day string) {
+func getDCount(db *sql.DB, day string) int {
 	rows, err := db.Query("select count(domain) from site_detail where date = '" + day + "'")
 	autils.ErrHadle(err)
 
@@ -47,6 +51,30 @@ func getDCount(db *sql.DB, ch chan int, day string) {
 	autils.ErrHadle(err)
 
 	defer rows.Close()
+	return total
+}
 
-	ch <- total
+// 增长流量
+func getRaiseNum(db *sql.DB, lastDate, newDadte string) (int, int) {
+	rows, err := db.Query("select * from all_flow where date = '"+lastDate+"' or date = '"+newDadte+"' order by ana_date desc")
+	autils.ErrHadle(err)
+
+	var nums []int
+	var pv int
+	for rows.Next() {
+		err := rows.Scan(&pv)
+		autils.ErrHadle(err)
+		nums = append(nums, pv)
+	}
+	err = rows.Err()
+	autils.ErrHadle(err)
+
+	if len(nums) > 1 {
+		diff := nums[0] - nums[1]
+		rate := diff / nums[1]
+		return diff, rate
+	}
+
+	defer rows.Close()
+	return 0, 0
 }

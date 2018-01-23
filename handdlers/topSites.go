@@ -3,11 +3,6 @@ package handdlers
 import (
 	"../autils"
 	"database/sql"
-<<<<<<< HEAD
-=======
-	"fmt"
-	"sort"
->>>>>>> 36daf9260d0a72a7220ff43a5ba2529656a16f96
 )
 
 var (
@@ -50,15 +45,9 @@ func TopSites(db *sql.DB, date string) int {
 		diffList[i] = v - lastTopList[i]
 	}
 
-<<<<<<< HEAD
 	topSum := 0
 	for _, v := range diffList {
 		topSum += v
-=======
-	var tmpKV []kv
-	for k, v := range diffList {
-		tmpKV = append(tmpKV, kv{k, v})
->>>>>>> 36daf9260d0a72a7220ff43a5ba2529656a16f96
 	}
 
 	sort.Slice(tmpKV, func(i, j int) bool {
@@ -71,15 +60,11 @@ func TopSites(db *sql.DB, date string) int {
 		topSum += v.Value
 	}
 
-<<<<<<< HEAD
 	// sort.Slice(tmpKV, func(i, j int) bool {
 	// 	return tmpKV[i].Value >= tmpKV[j].Value
 	// })
 	// return tmpKV
 	return topSum
-=======
-	fmt.Println(topSum)
->>>>>>> 36daf9260d0a72a7220ff43a5ba2529656a16f96
 }
 
 func getLastTop(db *sql.DB, lastMonth, monthTail string) map[string]int {

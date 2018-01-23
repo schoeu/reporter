@@ -24,7 +24,7 @@ type topSitesRs struct {
 	CTotalRate float32
 }
 
-func TopSites(db *sql.DB, date string) int {
+func TopSites(db *sql.DB, date string) topSitesRs {
 	last, lastMonthDate := getLastTime(date)
 	firstDateStr := autils.GetCurrentDate(lastMonthDate)
 	lastDateStr := autils.GetCurrentDate(last)
@@ -71,7 +71,7 @@ func TopSites(db *sql.DB, date string) int {
 	tsr.TotalRate = float32(topTotal) / float32(allFlow) * 100
 	//tsr.CTotalRate = float32(lTopTotal) / float32(lAllFlow) * 100
 
-	return topSum
+	return tsr
 }
 
 func getTopTotal(db *sql.DB, date string, data map[string]int) (int, map[string]int) {

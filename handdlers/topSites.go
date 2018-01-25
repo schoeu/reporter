@@ -22,12 +22,22 @@ type topSitesRs struct {
 	Rate       float32
 	TotalRate  float32
 	CTotalRate float32
+	SigleSite  []sigleSite
+}
+
+type sigleSite struct {
+	Domain string
+	Pv     int
+	Rate   float32
 }
 
 func TopSites(db *sql.DB, date string) topSitesRs {
 	last, lastMonthDate := getLastTime(date)
 	firstDateStr := autils.GetCurrentDate(lastMonthDate)
 	lastDateStr := autils.GetCurrentDate(last)
+
+	ss := sigleSite{}
+	ssCtt := []sigleSite{}
 
 	// 当前TOP流量
 	currentTop := getCurrentTop(db, date)
@@ -41,23 +51,27 @@ func TopSites(db *sql.DB, date string) topSitesRs {
 	// 上月总流量
 	//lAllFlow := getAllFlow(db, firstDateStr)
 
+	sortedTop := sortMap(currentTop)
+
+	// 获取TOP单站数据
+	for _, v := range sortedTop {
+		ss.Domain = v.Key
+		ss.Pv = v.Value
+		ss.Rate = float32(v.Value) / float32(allFlow) * 100
+		ssCtt = append(ssCtt, ss)
+	}
+
 	// 获取当前TOP占总流量&各站点环比差
 	topTotal, diffList := getTopTotal(db, date, currentTop)
 	// 获取TOP占总流量&各站点环比差 环比
 	//lTopTotal, _ := getTopTotal(lCurrentTop)
 
-	var tmpKV []kv
-	for k, v := range diffList {
-		tmpKV = append(tmpKV, kv{k, v})
-	}
-
-	sort.Slice(tmpKV, func(i, j int) bool {
-		return tmpKV[i].Value >= tmpKV[j].Value
-	})
+	// Map按value排序
+	sortedMap := sortMap(diffList)
 
 	// TOP新增流量
 	topSum := 0
-	for _, v := range tmpKV {
+	for _, v := range sortedMap {
 		topSum += v.Value
 	}
 	tsr := topSitesRs{}
@@ -71,7 +85,23 @@ func TopSites(db *sql.DB, date string) topSitesRs {
 	tsr.TotalRate = float32(topTotal) / float32(allFlow) * 100
 	//tsr.CTotalRate = float32(lTopTotal) / float32(lAllFlow) * 100
 
+	// TOP单站数据
+	tsr.SigleSite = ssCtt
+
 	return tsr
+}
+
+func sortMap(data map[string]int) []kv {
+	var tmpKV []kv
+	for k, v := range data {
+		tmpKV = append(tmpKV, kv{k, v})
+	}
+
+	sort.Slice(tmpKV, func(i, j int) bool {
+		return tmpKV[i].Value >= tmpKV[j].Value
+	})
+
+	return tmpKV
 }
 
 func getTopTotal(db *sql.DB, date string, data map[string]int) (int, map[string]int) {

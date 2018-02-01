@@ -19,26 +19,30 @@ func main() {
 	flag.StringVar(&starttime, "s", "", "分析数据的起始日期, 默认一个月前（yyyy-MM-dd）")
 	flag.StringVar(&endtime, "e", "", "分析数据的结束日期, 默认当前日期（yyyy-MM-dd）")
 	flag.IntVar(&aType, "type", -1, "分析数据类型")
-	flag.StringVar(&mode, "mode", "", "是否为开发模式")
+	flag.StringVar(&mode, "debug", "", "是否为开发模式")
 	flag.Parse()
 
+	now := time.Now()
+
 	if date == "" {
-		date = autils.GetCurrentDate(time.Now())
+		date = autils.GetCurrentDate(now)
 	}
 
-	// if starttime == "" {
-	// 	starttime =
-	// }
+	if starttime == "" {
+		starttime = autils.GetCurrentDate(now.AddDate(0, -1, 0))
+	}
 
-	// if endtime == "" {
-	// 	endtime =
-	// }
+	if endtime == "" {
+		endtime = autils.GetCurrentDate(now)
+	}
 
-	db := autils.OpenDb("postgres", config.PQFlowUrl)
+	dbUrl := config.PQFlowUrl
+
 	cwd := autils.GetCwd()
 	rsFile := filepath.Join(cwd, rsFilePath)
 
 	if mode != "" {
+		dbUrl = config.PQTestUrl
 		// db = autils.OpenDb("postgres", config.PQTestUrl)
 		// newSite 当月新增站点pv平均值之和
 		// totle 站点当月pv总和的平均值
@@ -48,8 +52,9 @@ func main() {
 		// newSite, totle := mock.NewSite, mock.Total
 		// kvs := mock.Kvs
 		// handdlers.MarkdownMaker(rsFile)
-		return
 	}
+
+	db := autils.OpenDb("postgres", dbUrl)
 
 	if aType == 0 || aType < 0 {
 		// 概览
@@ -66,6 +71,9 @@ func main() {
 		fmt.Println(raiseNum)
 	} else if aType == 3 || aType < 0 {
 		handdlers.MarkdownMaker(rsFile)
+	} else if aType == 4 || aType < 0 {
+		a, b := autils.GetCircleDate("2017-10-10", "2017-12-10")
+		fmt.Println(autils.GetCurrentDate(a), autils.GetCurrentDate(b))
 	}
 
 	defer db.Close()

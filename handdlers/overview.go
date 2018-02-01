@@ -14,7 +14,6 @@ type orResult struct {
 }
 
 func GetOverview(db *sql.DB, date string) orResult {
-
 	now := autils.ParseTimeStr(date)
 	_, last := autils.GetMonthDate(now)
 	_, lastMonthDate := autils.GetMonthDate(now.AddDate(0, -1, 0))

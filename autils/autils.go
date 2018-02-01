@@ -76,3 +76,12 @@ func ParseTimeStr(date string) time.Time {
 	ErrHadle(err)
 	return rsDate
 }
+
+func GetCircleDate(st, et string) (time.Time, time.Time) {
+	startTime := ParseTimeStr(st)
+	endTime := ParseTimeStr(et)
+	sub := endTime.Sub(startTime.AddDate(0, 0, -1))
+	lastStart := startTime.Add(-sub)
+	lastEnd := startTime.AddDate(0, 0, -1)
+	return lastStart, lastEnd
+}

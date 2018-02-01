@@ -3,6 +3,7 @@ package handdlers
 import (
 	"../autils"
 	"database/sql"
+	"fmt"
 )
 
 type orResult struct {
@@ -13,30 +14,30 @@ type orResult struct {
 	CircleRate  float32
 }
 
-func GetOverview(db *sql.DB, date string) orResult {
-	now := autils.ParseTimeStr(date)
-	_, last := autils.GetMonthDate(now)
-	_, lastMonthDate := autils.GetMonthDate(now.AddDate(0, -1, 0))
-	_, tMonthTime := autils.GetMonthDate(now.AddDate(0, -2, 0))
+func GetOverview(db *sql.DB, st, et string) orResult {
+	//now := autils.ParseTimeStr(date)
+	//_, last := autils.GetMonthDate(now)
+	//_, lastMonthDate := autils.GetMonthDate(now.AddDate(0, -1, 0))
+	// _, tMonthTime := autils.GetMonthDate(now.AddDate(0, -2, 0))
 
-	lastDateStr := autils.GetCurrentDate(last)
-	lastMDateStr := autils.GetCurrentDate(lastMonthDate)
-	tMonthStr := autils.GetCurrentDate(tMonthTime)
+	//lastDateStr := autils.GetCurrentDate(last)
+	//lastMDateStr := autils.GetCurrentDate(lastMonthDate)
+	// tMonthStr := autils.GetCurrentDate(tMonthTime)
 
-	allFlow := getAllFlow(db, lastDateStr)
-	dCount := getDCount(db, lastDateStr)
-	diff, rate := getRaiseNum(db, lastDateStr, lastMDateStr)
+	allFlow := getAllFlow(db, st)
+	dCount := getDCount(db, st)
+	diff, rate := getRaiseNum(db, st, et)
 
 	// 环比
-	_, cRate := getRaiseNum(db, lastMDateStr, tMonthStr)
+	// _, cRate := getRaiseNum(db, et, tMonthStr)
 
 	rs := orResult{}
 	rs.AllFlow = allFlow
 	rs.DomainCount = dCount
 	rs.Diff = diff
 	rs.Rate = rate
-	rs.CircleRate = cRate
-
+	// rs.CircleRate = cRate
+	fmt.Println(st, et, rs)
 	return rs
 }
 

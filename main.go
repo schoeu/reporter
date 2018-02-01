@@ -58,7 +58,7 @@ func main() {
 
 	if aType == 0 || aType < 0 {
 		// 概览
-		dataList := handdlers.GetOverview(db, date)
+		dataList := handdlers.GetOverview(db, starttime, endtime)
 		fmt.Println(dataList, dataList.Diff)
 
 	} else if aType == 1 || aType < 0 {

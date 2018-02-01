@@ -3,7 +3,6 @@ package handdlers
 import (
 	"../autils"
 	"database/sql"
-	"fmt"
 	"sync"
 )
 
@@ -13,12 +12,9 @@ type nSiteInfo struct {
 	CnFlow  float32
 }
 
-func SitePraise(db *sql.DB, date string) nSiteInfo {
+func SitePraise(db *sql.DB, st, et string) nSiteInfo {
 	newSites := []string{}
-	now := autils.ParseTimeStr(date)
-	first, last := autils.GetMonthDate(now)
-	lastMonthStart, lastMonthDate := autils.GetMonthDate(now.AddDate(0, -1, 0))
-	sqlStr := "select domain from site_detail where date = '" + autils.GetCurrentDate(last) + "' except  select domain from site_detail where date = '" + autils.GetCurrentDate(lastMonthDate) + "'"
+	sqlStr := "select domain from site_detail where date = '" + et + "' except  select domain from site_detail where date = '" + st + "'"
 	rows, err := db.Query(sqlStr)
 	domain := ""
 	for rows.Next() {
@@ -30,19 +26,16 @@ func SitePraise(db *sql.DB, date string) nSiteInfo {
 	autils.ErrHadle(err)
 	defer rows.Close()
 
-	firstDateStr := autils.GetCurrentDate(first)
-	lastDateStr := autils.GetCurrentDate(last)
-	tMDateStr := autils.GetCurrentDate(lastMonthDate)
-	sMDateStr := autils.GetCurrentDate(lastMonthStart)
+	cs, ce := autils.GetCircleDate(st, et)
+	csStr := autils.GetCurrentDate(cs)
+	ceStr := autils.GetCurrentDate(ce)
 
-	newSiteFlow := siteFlow(db, newSites, firstDateStr, lastDateStr)
-	total := getTotalFlow(db, firstDateStr, lastDateStr)
-
-	fmt.Println(firstDateStr, lastDateStr, sMDateStr, tMDateStr)
+	newSiteFlow := siteFlow(db, newSites, st, et)
+	total := getTotalFlow(db, st, et)
 
 	// 环比
-	cNewSiteFlow := siteFlow(db, newSites, sMDateStr, tMDateStr)
-	cTotal := getTotalFlow(db, sMDateStr, tMDateStr)
+	cNewSiteFlow := siteFlow(db, newSites, csStr, ceStr)
+	cTotal := getTotalFlow(db, csStr, ceStr)
 
 	nsi := nSiteInfo{}
 	nsi.Newer = len(newSites)
@@ -51,6 +44,7 @@ func SitePraise(db *sql.DB, date string) nSiteInfo {
 	return nsi
 }
 
+// 新增站点的平均pv
 func siteFlow(db *sql.DB, sites []string, first, last string) int {
 	var count int
 	var mutex sync.Mutex

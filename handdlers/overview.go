@@ -3,7 +3,6 @@ package handdlers
 import (
 	"../autils"
 	"database/sql"
-	"fmt"
 )
 
 type orResult struct {
@@ -15,15 +14,6 @@ type orResult struct {
 }
 
 func GetOverview(db *sql.DB, st, et string) orResult {
-	//now := autils.ParseTimeStr(date)
-	//_, last := autils.GetMonthDate(now)
-	//_, lastMonthDate := autils.GetMonthDate(now.AddDate(0, -1, 0))
-	// _, tMonthTime := autils.GetMonthDate(now.AddDate(0, -2, 0))
-
-	//lastDateStr := autils.GetCurrentDate(last)
-	//lastMDateStr := autils.GetCurrentDate(lastMonthDate)
-	// tMonthStr := autils.GetCurrentDate(tMonthTime)
-
 	allFlow := getAllFlow(db, et)
 	dCount := getDCount(db, et)
 	diff, rate := getRaiseNum(db, st, et)
@@ -38,7 +28,6 @@ func GetOverview(db *sql.DB, st, et string) orResult {
 	rs.Diff = diff
 	rs.Rate = rate
 	rs.CircleRate = cRate
-	fmt.Println(st, et, rs)
 	return rs
 }
 

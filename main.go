@@ -43,15 +43,6 @@ func main() {
 
 	if mode != "" {
 		dbUrl = config.PQTestUrl
-		// db = autils.OpenDb("postgres", config.PQTestUrl)
-		// newSite 当月新增站点pv平均值之和
-		// totle 站点当月pv总和的平均值
-		// kvs TOP站点净增长总量
-
-		// TODO
-		// newSite, totle := mock.NewSite, mock.Total
-		// kvs := mock.Kvs
-		// handdlers.MarkdownMaker(rsFile)
 	}
 
 	db := autils.OpenDb("postgres", dbUrl)
@@ -63,8 +54,8 @@ func main() {
 
 	} else if aType == 1 || aType < 0 {
 		// 新增站点
-		newSiteInfo := handdlers.SitePraise(db, date)
-		fmt.Println(newSiteInfo, newSiteInfo.Newer)
+		newSiteInfo := handdlers.SitePraise(db, starttime, endtime)
+		fmt.Println(newSiteInfo)
 	} else if aType == 2 || aType < 0 {
 		// TOP站点计算
 		raiseNum := handdlers.TopSites(db, date)

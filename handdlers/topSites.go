@@ -31,23 +31,20 @@ type sigleSite struct {
 	Rate   float32
 }
 
-func TopSites(db *sql.DB, date string) topSitesRs {
-	last, lastMonthDate := getLastTime(date)
-	firstDateStr := autils.GetCurrentDate(lastMonthDate)
-	lastDateStr := autils.GetCurrentDate(last)
-
+func TopSites(db *sql.DB, st, et string) topSitesRs {
 	ss := sigleSite{}
 	ssCtt := []sigleSite{}
 
 	// 当前TOP流量
-	currentTop := getCurrentTop(db, date)
+	currentTop := getCurrentTop(db, et)
 	// TOP流量环比
 	//lCurrentTop := getCurrentTop(db, firstDateStr)
 
 	// 新增总流量
-	diff, _ := getRaiseNum(db, lastDateStr, firstDateStr)
+	diff, _ := getRaiseNum(db, et, st)
 	// 当月总流量
-	allFlow := getAllFlow(db, lastDateStr)
+	allFlow := getAllFlow(db, et)
+
 	// 上月总流量
 	//lAllFlow := getAllFlow(db, firstDateStr)
 
@@ -62,7 +59,7 @@ func TopSites(db *sql.DB, date string) topSitesRs {
 	}
 
 	// 获取当前TOP占总流量&各站点环比差
-	topTotal, diffList := getTopTotal(db, date, currentTop)
+	topTotal, diffList := getTopTotal(db, st, et, currentTop)
 	// 获取TOP占总流量&各站点环比差 环比
 	//lTopTotal, _ := getTopTotal(lCurrentTop)
 
@@ -104,16 +101,12 @@ func sortMap(data map[string]int) []kv {
 	return tmpKV
 }
 
-func getTopTotal(db *sql.DB, date string, data map[string]int) (int, map[string]int) {
-	last, lastMonthDate := getLastTime(date)
-	firstDateStr := autils.GetCurrentDate(lastMonthDate)
-	lastDateStr := autils.GetCurrentDate(last)
-
+func getTopTotal(db *sql.DB, st, et string, data map[string]int) (int, map[string]int) {
 	t := 0
 	diffList := map[string]int{}
 
 	// TOP流量环比
-	lastTopList := getLastTop(db, firstDateStr, lastDateStr)
+	lastTopList := getLastTop(db, st, et)
 
 	for i, v := range data {
 		t += v
@@ -122,10 +115,9 @@ func getTopTotal(db *sql.DB, date string, data map[string]int) (int, map[string]
 	return t, diffList
 }
 
-func getCurrentTop(db *sql.DB, date string) map[string]int {
+func getCurrentTop(db *sql.DB, et string) map[string]int {
 	topSites := map[string]int{}
-	last, _ := getLastTime(date)
-	sqlStr := "select domain, pv from site_detail where date = '" + autils.GetCurrentDate(last) + "' order by pv desc offset 1 limit " + limit
+	sqlStr := "select domain, pv from site_detail where date = '" + et + "' order by pv desc offset 1 limit " + limit
 	rows, err := db.Query(sqlStr)
 	domain := ""
 	pv := 0

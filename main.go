@@ -6,13 +6,12 @@ import (
 	"./handdlers"
 	"flag"
 	"fmt"
-	"path/filepath"
 	"time"
 )
 
 func main() {
 	var date, mode, starttime, endtime string
-	rsFilePath := "Result_Markdown.md"
+	// rsFilePath := "Result_Markdown.md"
 	aType := -1
 
 	flag.StringVar(&date, "date", "", "分析数据的日期, 默认当前日期（yyyy-MM-dd）")
@@ -38,8 +37,8 @@ func main() {
 
 	dbUrl := config.PQFlowUrl
 
-	cwd := autils.GetCwd()
-	rsFile := filepath.Join(cwd, rsFilePath)
+	// cwd := autils.GetCwd()
+	// rsFile := filepath.Join(cwd, rsFilePath)
 
 	if mode != "" {
 		dbUrl = config.PQTestUrl
@@ -58,13 +57,8 @@ func main() {
 		fmt.Println(newSiteInfo)
 	} else if aType == 2 || aType < 0 {
 		// TOP站点计算
-		raiseNum := handdlers.TopSites(db, date)
+		raiseNum := handdlers.TopSites(db, starttime, endtime)
 		fmt.Println(raiseNum)
-	} else if aType == 3 || aType < 0 {
-		handdlers.MarkdownMaker(rsFile)
-	} else if aType == 4 || aType < 0 {
-		a, b := autils.GetCircleDate("2017-10-10", "2017-12-10")
-		fmt.Println(autils.GetCurrentDate(a), autils.GetCurrentDate(b))
 	}
 
 	defer db.Close()

@@ -24,19 +24,20 @@ func GetOverview(db *sql.DB, st, et string) orResult {
 	//lastMDateStr := autils.GetCurrentDate(lastMonthDate)
 	// tMonthStr := autils.GetCurrentDate(tMonthTime)
 
-	allFlow := getAllFlow(db, st)
-	dCount := getDCount(db, st)
+	allFlow := getAllFlow(db, et)
+	dCount := getDCount(db, et)
 	diff, rate := getRaiseNum(db, st, et)
 
 	// 环比
-	// _, cRate := getRaiseNum(db, et, tMonthStr)
+	cs, ce := autils.GetCircleDate(st, et)
+	_, cRate := getRaiseNum(db, autils.GetCurrentDate(cs), autils.GetCurrentDate(ce))
 
 	rs := orResult{}
 	rs.AllFlow = allFlow
 	rs.DomainCount = dCount
 	rs.Diff = diff
 	rs.Rate = rate
-	// rs.CircleRate = cRate
+	rs.CircleRate = cRate
 	fmt.Println(st, et, rs)
 	return rs
 }
@@ -75,7 +76,7 @@ func getDCount(db *sql.DB, day string) int {
 	return total
 }
 
-// 增长流量
+// 增长流量
 func getRaiseNum(db *sql.DB, lastDate, newDadte string) (int, float32) {
 	rows, err := db.Query("select click from all_flow where date = '" + lastDate + "' or date = '" + newDadte + "' order by ana_date desc")
 	autils.ErrHadle(err)

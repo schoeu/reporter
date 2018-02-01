@@ -16,8 +16,8 @@ func main() {
 	aType := -1
 
 	flag.StringVar(&date, "date", "", "分析数据的日期, 默认当前日期（yyyy-MM-dd）")
-	flag.StringVar(&starttime, "s", "", "分析数据的起始日期, 默认一个月前（yyyy-MM-dd）")
-	flag.StringVar(&endtime, "e", "", "分析数据的结束日期, 默认当前日期（yyyy-MM-dd）")
+	flag.StringVar(&starttime, "start", "", "分析数据的起始日期, 默认一个月前（yyyy-MM-dd）")
+	flag.StringVar(&endtime, "end", "", "分析数据的结束日期, 默认当前日期（yyyy-MM-dd）")
 	flag.IntVar(&aType, "type", -1, "分析数据类型")
 	flag.StringVar(&mode, "debug", "", "是否为开发模式")
 	flag.Parse()

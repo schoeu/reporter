@@ -38,7 +38,10 @@ func TopSites(db *sql.DB, st, et string) topSitesRs {
 	// 当前TOP流量
 	currentTop := getCurrentTop(db, et)
 	// TOP流量环比
-	//lCurrentTop := getCurrentTop(db, firstDateStr)
+	cs, ce := autils.GetCircleDate(st, et)
+	csStr := autils.GetCurrentDate(cs)
+	ceStr := autils.GetCurrentDate(ce)
+	lCurrentTop := getCurrentTop(db, ceStr)
 
 	// 新增总流量
 	diff, _ := getRaiseNum(db, et, st)
@@ -46,7 +49,7 @@ func TopSites(db *sql.DB, st, et string) topSitesRs {
 	allFlow := getAllFlow(db, et)
 
 	// 上月总流量
-	//lAllFlow := getAllFlow(db, firstDateStr)
+	lAllFlow := getAllFlow(db, ceStr)
 
 	sortedTop := sortMap(currentTop)
 
@@ -61,7 +64,7 @@ func TopSites(db *sql.DB, st, et string) topSitesRs {
 	// 获取当前TOP占总流量&各站点环比差
 	topTotal, diffList := getTopTotal(db, st, et, currentTop)
 	// 获取TOP占总流量&各站点环比差 环比
-	//lTopTotal, _ := getTopTotal(lCurrentTop)
+	lTopTotal, _ := getTopTotal(db, csStr, ceStr, lCurrentTop)
 
 	// Map按value排序
 	sortedMap := sortMap(diffList)
@@ -80,7 +83,7 @@ func TopSites(db *sql.DB, st, et string) topSitesRs {
 	tsr.Rate = float32(topSum) / float32(diff) * 100
 	// TOP总量占总流量比例
 	tsr.TotalRate = float32(topTotal) / float32(allFlow) * 100
-	//tsr.CTotalRate = float32(lTopTotal) / float32(lAllFlow) * 100
+	tsr.CTotalRate = float32(lTopTotal) / float32(lAllFlow) * 100
 
 	// TOP单站数据
 	tsr.SigleSite = ssCtt

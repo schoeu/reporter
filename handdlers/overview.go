@@ -40,6 +40,7 @@ func getAllFlow(db *sql.DB, day string) int {
 	for rows.Next() {
 		err := rows.Scan(&total)
 		autils.ErrHadle(err)
+		autils.CheckNum(total)
 	}
 	err = rows.Err()
 	autils.ErrHadle(err)
@@ -57,6 +58,7 @@ func getDCount(db *sql.DB, day string) int {
 	for rows.Next() {
 		err := rows.Scan(&total)
 		autils.ErrHadle(err)
+		autils.CheckNum(total)
 	}
 	err = rows.Err()
 	autils.ErrHadle(err)
@@ -76,6 +78,7 @@ func getRaiseNum(db *sql.DB, lastDate, newDadte string) (int, float32) {
 		err := rows.Scan(&pv)
 		autils.ErrHadle(err)
 		nums = append(nums, pv)
+		autils.CheckNum(pv)
 	}
 	err = rows.Err()
 	autils.ErrHadle(err)

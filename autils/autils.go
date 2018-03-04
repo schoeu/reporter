@@ -85,3 +85,9 @@ func GetCircleDate(st, et string) (time.Time, time.Time) {
 	lastEnd := startTime.AddDate(0, 0, -1)
 	return lastStart, lastEnd
 }
+
+func CheckNum(d int) {
+	if d == 0 {
+		log.Fatal("Zero data.")
+	}
+}

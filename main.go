@@ -10,11 +10,10 @@ import (
 )
 
 func main() {
-	var date, mode, starttime, endtime string
+	var mode, starttime, endtime string
 	// rsFilePath := "Result_Markdown.md"
 	aType := -1
 
-	flag.StringVar(&date, "date", "", "分析数据的日期, 默认当前日期（yyyy-MM-dd）")
 	flag.StringVar(&starttime, "start", "", "分析数据的起始日期, 默认一个月前（yyyy-MM-dd）")
 	flag.StringVar(&endtime, "end", "", "分析数据的结束日期, 默认当前日期（yyyy-MM-dd）")
 	flag.IntVar(&aType, "type", -1, "分析数据类型")
@@ -22,10 +21,6 @@ func main() {
 	flag.Parse()
 
 	now := time.Now()
-
-	if date == "" {
-		date = autils.GetCurrentDate(now)
-	}
 
 	if starttime == "" {
 		starttime = autils.GetCurrentDate(now.AddDate(0, -1, 0))
